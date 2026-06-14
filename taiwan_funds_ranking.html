@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台灣股票型基金績效綜合排行與加權指數對比報告</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0b10;
+            --bg-secondary: #12131a;
+            --bg-tertiary: #1a1c26;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --primary-accent: #3b82f6;
+            --border: #272a37;
+            --pos-color: #10b981;
+            --neg-color: #f43f5e;
+            --card-radius: 16px;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            padding: 2rem 1rem;
+            margin: 0;
+        }
+
+        .container { max-width: 1300px; margin: 0 auto; }
+
+        header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            border: 1px solid var(--border);
+            border-radius: var(--card-radius);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #fff, var(--text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-top: 0;
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .bento-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--card-radius);
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bento-card .label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .bento-card .value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .bento-card .value-pos { color: var(--pos-color); }
+        .bento-card .value-accent { color: var(--primary-accent); }
+
+        /* Filter Controls */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex-grow: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            box-sizing: border-box;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-accent);
+        }
+
+        .table-container {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--card-radius);
+            overflow-x: auto;
+            margin-bottom: 2rem;
+        }
+
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th {
+            background-color: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 1rem 1.25rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        td { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        tr:hover td { background-color: rgba(255,255,255,0.02); }
+
+        .rank-badge {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            line-height: 28px;
+            text-align: center;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+        .rank-1 { background-color: #ffd700; color: #000; }
+        .rank-2 { background-color: #c0c0c0; color: #000; }
+        .rank-3 { background-color: #cd7f32; color: #000; }
+        .rank-other { background-color: var(--bg-tertiary); color: var(--text-secondary); }
+
+        .badge-outperf {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--pos-color);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .badge-underperf {
+            background-color: rgba(244, 63, 94, 0.1);
+            color: var(--text-secondary);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .nav-text { font-family: 'Outfit', sans-serif; font-weight: 600; }
+
+        .analysis-section {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--card-radius);
+            padding: 2rem;
+        }
+        .analysis-section h2 {
+            margin-top: 0;
+            font-family: 'Outfit', sans-serif;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>台灣股票型基金績效綜合排行與加權指數對比</h1>
+            <p style="color: var(--text-secondary); margin: 0;">篩選台股股票型基金共 199 檔，計算綜合百分比排名。數據日期：2026/06/12。</p>
+        </header>
+
+        <div class="bento-grid">
+            <div class="bento-card">
+                <div class="label">加權指數今年以來 (YTD) 報酬</div>
+                <div class="value value-pos">+52.50%</div>
+                <p style="color: var(--text-secondary); font-size: 0.8rem; margin: 0.5rem 0 0 0;">大盤表現強勁，AI 供應鏈為核心驅動力。</p>
+            </div>
+            <div class="bento-card">
+                <div class="label">主動基金 YTD 勝率</div>
+                <div class="value value-accent">89.45%</div>
+                <p style="color: var(--text-secondary); font-size: 0.8rem; margin: 0.5rem 0 0 0;">共有 178 檔基金表現勝過大盤。</p>
+            </div>
+            <div class="bento-card">
+                <div class="label">主動基金 1年 勝率</div>
+                <div class="value value-accent">85.47%</div>
+                <p style="color: var(--text-secondary); font-size: 0.8rem; margin: 0.5rem 0 0 0;">中長線主動經理人超額報酬極為顯著。</p>
+            </div>
+            <div class="bento-card">
+                <div class="label">主動基金 3年 勝率</div>
+                <div class="value value-accent">83.87%</div>
+                <p style="color: var(--text-secondary); font-size: 0.8rem; margin: 0.5rem 0 0 0;">幾乎所有（96% 以上）主動基金皆擊敗大盤。</p>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 搜尋基金名稱或代碼..." onkeyup="filterTable()">
+            </div>
+            <div style="color: var(--text-secondary); font-size: 0.9rem;">
+                顯示前 50 名基金（共 199 檔）
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table id="fundTable">
+                <thead>
+                    <tr>
+                        <th>綜合排名</th>
+                        <th>基金名稱</th>
+                        <th>代碼</th>
+                        <th>1日</th>
+                        <th>一週</th>
+                        <th>一個月</th>
+                        <th>三個月</th>
+                        <th>今年以來</th>
+                        <th>一年</th>
+                        <th>三年</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="rank-badge rank-1">1</span></td>
+                        <td><strong>安聯台灣科技基金</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACDD04</code></td>
+                        <td>
+                            <span class="nav-text">+3.79%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+0.94%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+2.36%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+58.47%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+104.03%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+263.27%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+483.92%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-2">2</span></td>
+                        <td><strong>元大多多基金</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACYT03</code></td>
+                        <td>
+                            <span class="nav-text">+4.15%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+0.39%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+3.72%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+59.66%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+109.61%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+253.69%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+324.89%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-3">3</span></td>
+                        <td><strong>路博邁台灣5G股票基金T累積型(基金之配息來源可能為本金)</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACNB01</code></td>
+                        <td>
+                            <span class="nav-text">+3.46%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.32%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+0.90%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+60.80%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+97.18%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+235.09%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+468.70%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">4</span></td>
+                        <td><strong>路博邁台灣5G股票基金T月配型(基金之配息來源可能為本金)</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACNB02</code></td>
+                        <td>
+                            <span class="nav-text">+3.46%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.32%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+0.91%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+60.80%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+97.18%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+235.01%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+468.53%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">5</span></td>
+                        <td><strong>元大經貿基金</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACYT12</code></td>
+                        <td>
+                            <span class="nav-text">+4.07%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.23%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+4.09%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+63.17%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+117.38%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+236.85%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+326.89%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">6</span></td>
+                        <td><strong>路博邁台灣5G股票基金N累積型(基金之配息來源可能為本金)</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACNB45</code></td>
+                        <td>
+                            <span class="nav-text">+3.45%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.32%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+0.90%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+60.80%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+97.17%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+234.99%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+468.52%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">7</span></td>
+                        <td><strong>路博邁台灣5G股票基金N月配型(基金之配息來源可能為本金)</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACNB46</code></td>
+                        <td>
+                            <span class="nav-text">+3.45%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.32%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+0.90%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+60.77%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+97.17%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+235.06%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+468.53%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">8</span></td>
+                        <td><strong>景順潛力基金-TISA累積型(台幣)</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACCS135</code></td>
+                        <td>
+                            <span class="nav-text">+3.03%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">0.00%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+5.91%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+51.73%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+84.21%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td style="color: var(--text-secondary);">N/A</td>
+                        <td style="color: var(--text-secondary);">N/A</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">9</span></td>
+                        <td><strong>復華高成長基金</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACFH03</code></td>
+                        <td>
+                            <span class="nav-text">+2.28%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.12%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+6.14%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+61.55%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+92.04%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+226.98%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+355.30%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">10</span></td>
+                        <td><strong>街口台灣基金</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACCH01</code></td>
+                        <td>
+                            <span class="nav-text">+2.46%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+0.17%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+5.36%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+48.24%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+95.98%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+264.25%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+382.65%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">11</span></td>
+                        <td><strong>元大高科技基金</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACYT09</code></td>
+                        <td>
+                            <span class="nav-text">+4.68%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.33%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.00%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+55.52%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+98.88%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+232.97%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+295.02%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">12</span></td>
+                        <td><strong>野村優質基金-TISA類型(台幣)</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACKH304</code></td>
+                        <td>
+                            <span class="nav-text">+2.90%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+1.36%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.05%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+53.87%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+94.52%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td style="color: var(--text-secondary);">N/A</td>
+                        <td style="color: var(--text-secondary);">N/A</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">13</span></td>
+                        <td><strong>安聯台灣大壩基金-G累積型(台幣)</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACDD102</code></td>
+                        <td>
+                            <span class="nav-text">+3.10%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.56%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.77%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+49.59%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+96.24%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+238.85%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+405.90%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">14</span></td>
+                        <td><strong>安聯台灣智慧基金</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACDD19</code></td>
+                        <td>
+                            <span class="nav-text">+3.10%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.62%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+0.81%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+51.03%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+90.10%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+225.45%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+369.86%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">15</span></td>
+                        <td><strong>統一龍馬基金</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACPS03</code></td>
+                        <td>
+                            <span class="nav-text">+2.49%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.68%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+2.75%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+64.09%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+104.66%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+236.34%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+349.84%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">16</span></td>
+                        <td><strong>安聯台灣大壩基金-A累積型(台幣)</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACDD01</code></td>
+                        <td>
+                            <span class="nav-text">+3.10%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.58%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.85%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+49.23%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+95.38%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+235.53%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+391.13%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">17</span></td>
+                        <td><strong>富達台灣成長基金-A類型累積型</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACFD02</code></td>
+                        <td>
+                            <span class="nav-text">+2.79%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.10%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+1.09%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+55.88%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+93.43%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+219.91%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+359.97%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">18</span></td>
+                        <td><strong>野村優質基金-累積S類型(台幣)</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACKH173</code></td>
+                        <td>
+                            <span class="nav-text">+2.86%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+1.34%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.11%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+53.70%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+94.18%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+205.71%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+326.50%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">19</span></td>
+                        <td><strong>元大台灣高股息優質龍頭基金R不配息(台幣)(本基金之配息來源可能為收益平準金)</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACYT204</code></td>
+                        <td>
+                            <span class="nav-text">+3.79%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.51%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+1.79%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+53.67%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+101.34%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+151.51%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td style="color: var(--text-secondary);">N/A</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">20</span></td>
+                        <td><strong>野村優質基金-累積型(台幣)</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACIC01</code></td>
+                        <td>
+                            <span class="nav-text">+2.86%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+1.33%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.15%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+53.51%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+93.76%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+204.14%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+320.05%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">21</span></td>
+                        <td><strong>元大多福基金</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACYT02</code></td>
+                        <td>
+                            <span class="nav-text">+3.73%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.24%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.28%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+47.54%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+97.85%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+226.42%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+297.24%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">22</span></td>
+                        <td><strong>景順台灣科技基金</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACCS07</code></td>
+                        <td>
+                            <span class="nav-text">+3.06%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.19%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+5.56%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+52.75%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+87.00%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+188.11%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+289.06%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">23</span></td>
+                        <td><strong>野村鴻運基金</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">AC0001</code></td>
+                        <td>
+                            <span class="nav-text">+2.68%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.65%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-2.06%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+49.28%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+98.50%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+253.83%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+410.86%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">24</span></td>
+                        <td><strong>復華復華基金</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACFH01</code></td>
+                        <td>
+                            <span class="nav-text">+2.16%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.24%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+4.40%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+59.06%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+88.52%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+217.46%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+340.61%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">25</span></td>
+                        <td><strong>元大台灣高股息優質龍頭基金I不配息(本基金之配息來源可能為收益平準金且並無保證收益及配息)</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACYT164</code></td>
+                        <td>
+                            <span class="nav-text">+3.80%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.51%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+1.82%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+53.83%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+101.63%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+152.44%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+249.29%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">26</span></td>
+                        <td><strong>元大台灣高股息優質龍頭基金B配息(本基金之配息來源可能為收益平準金且並無保證收益及配息)</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACYT162</code></td>
+                        <td>
+                            <span class="nav-text">+3.81%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.50%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+1.83%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+53.75%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+101.62%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+152.02%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+246.98%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">27</span></td>
+                        <td><strong>富蘭克林華美第一富基金-TISA類型(台幣)</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACFT171</code></td>
+                        <td>
+                            <span class="nav-text">+3.08%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.21%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+0.54%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+47.01%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+89.16%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td style="color: var(--text-secondary);">N/A</td>
+                        <td style="color: var(--text-secondary);">N/A</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">28</span></td>
+                        <td><strong>元大台灣高股息優質龍頭基金A不配息(本基金之配息來源可能為收益平準金且並無保證收益及配息)</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACYT161</code></td>
+                        <td>
+                            <span class="nav-text">+3.79%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.51%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+1.79%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+53.73%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+101.47%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+151.78%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+246.58%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">29</span></td>
+                        <td><strong>復華全方位基金TISA類型</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACFH120</code></td>
+                        <td>
+                            <span class="nav-text">+2.71%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.52%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+2.95%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+55.72%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+83.52%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td style="color: var(--text-secondary);">N/A</td>
+                        <td style="color: var(--text-secondary);">N/A</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">30</span></td>
+                        <td><strong>統一全天候基金</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACPS01</code></td>
+                        <td>
+                            <span class="nav-text">+2.64%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.42%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+1.17%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+52.19%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+87.25%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+219.48%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+331.90%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">31</span></td>
+                        <td><strong>凱基台灣精五門基金A類型(台幣)</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACKG15</code></td>
+                        <td>
+                            <span class="nav-text">+2.55%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.83%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+0.91%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+51.30%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+93.38%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+219.74%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+372.06%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">32</span></td>
+                        <td><strong>景順潛力基金</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACCS02</code></td>
+                        <td>
+                            <span class="nav-text">+3.04%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+0.01%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+5.85%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+51.39%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+83.48%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+173.81%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+248.69%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">33</span></td>
+                        <td><strong>野村台灣運籌基金</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACKH03</code></td>
+                        <td>
+                            <span class="nav-text">+2.52%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.88%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-2.06%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+50.04%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+99.55%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+254.58%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+414.75%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">34</span></td>
+                        <td><strong>聯邦中國龍基金-A不配息(台幣)</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACUI05</code></td>
+                        <td>
+                            <span class="nav-text">+2.20%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+1.08%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+6.87%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+55.83%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+101.01%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+167.93%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+251.58%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">35</span></td>
+                        <td><strong>摩根新興科技基金-數位型</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACJF147</code></td>
+                        <td>
+                            <span class="nav-text">+2.65%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-2.91%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.05%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+58.65%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+105.14%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+219.22%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+380.29%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">36</span></td>
+                        <td><strong>野村成長基金</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACIC04</code></td>
+                        <td>
+                            <span class="nav-text">+2.59%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.52%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-2.19%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+48.91%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+95.88%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+238.49%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+376.23%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">37</span></td>
+                        <td><strong>摩根新興科技基金-一般型</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACJF76</code></td>
+                        <td>
+                            <span class="nav-text">+2.66%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-2.92%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.12%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+58.31%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+104.34%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+216.47%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+367.52%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">38</span></td>
+                        <td><strong>聯博大利基金A2類型</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACTI02</code></td>
+                        <td>
+                            <span class="nav-text">+2.47%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.29%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+5.32%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+64.71%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+98.56%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+180.87%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+249.39%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">39</span></td>
+                        <td><strong>復華台灣未來50主動式ETF基金(基金之配息來源可能為收益平準金)</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACFH121</code></td>
+                        <td>
+                            <span class="nav-text">+2.26%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.99%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+3.94%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+54.05%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+81.91%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td style="color: var(--text-secondary);">N/A</td>
+                        <td style="color: var(--text-secondary);">N/A</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">40</span></td>
+                        <td><strong>復華全方位基金A類型</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACFH15</code></td>
+                        <td>
+                            <span class="nav-text">+2.71%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.54%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+2.85%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+55.36%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+82.83%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+192.60%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+290.68%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">41</span></td>
+                        <td><strong>玉山科技島基金</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACML07</code></td>
+                        <td>
+                            <span class="nav-text">+3.53%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.92%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-3.72%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+44.82%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+97.32%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+232.22%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+303.98%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">42</span></td>
+                        <td><strong>凱基開創基金</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACKG01</code></td>
+                        <td>
+                            <span class="nav-text">+2.54%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.78%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+2.08%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+52.30%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+99.58%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+214.83%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+244.38%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">43</span></td>
+                        <td><strong>富蘭克林華美第一富基金-A累積型(台幣)</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACFT01</code></td>
+                        <td>
+                            <span class="nav-text">+3.12%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.20%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+0.49%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+46.80%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+88.62%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+188.65%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+264.52%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">44</span></td>
+                        <td><strong>群益長安基金</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACCA04</code></td>
+                        <td>
+                            <span class="nav-text">+2.92%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-0.38%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+0.73%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+49.74%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+83.70%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+181.83%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+285.01%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">45</span></td>
+                        <td><strong>元大卓越基金</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACYT04</code></td>
+                        <td>
+                            <span class="nav-text">+3.94%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.57%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-3.90%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+46.36%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+102.01%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+219.70%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+304.97%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">46</span></td>
+                        <td><strong>富蘭克林華美高科技基金</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACFT12</code></td>
+                        <td>
+                            <span class="nav-text">+3.10%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.71%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.93%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+46.90%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+90.62%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+192.30%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+375.85%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">47</span></td>
+                        <td><strong>凱基台灣精五門基金TISA類型(台幣)</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACKG207</code></td>
+                        <td>
+                            <span class="nav-text">+2.53%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.81%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+0.98%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+51.64%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+94.17%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td style="color: var(--text-secondary);">N/A</td>
+                        <td style="color: var(--text-secondary);">N/A</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">48</span></td>
+                        <td><strong>富達台灣成長基金-TISA類型</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACFD73</code></td>
+                        <td>
+                            <span class="nav-text">+2.78%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.07%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+1.22%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+56.30%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+66.30%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td style="color: var(--text-secondary);">N/A</td>
+                        <td style="color: var(--text-secondary);">N/A</td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">49</span></td>
+                        <td><strong>第一金創新趨勢基金A類型(台幣)</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACNC38</code></td>
+                        <td>
+                            <span class="nav-text">+2.80%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.78%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.61%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+49.99%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+88.04%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+201.89%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+323.65%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-other">50</span></td>
+                        <td><strong>統一台股增長主動式ETF基金(基金配息來源可能為收益平準金)</strong></td>
+                        <td><code style="background-color: var(--bg-tertiary); padding: 0.2rem 0.4rem; border-radius: 4px;">ACPS68</code></td>
+                        <td>
+                            <span class="nav-text">+2.32%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">-1.14%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+1.71%</span><br>
+                            <span class="badge-underperf">▼ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+53.75%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+83.68%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td>
+                            <span class="nav-text">+190.92%</span><br>
+                            <span class="badge-outperf">▲ Index</span>
+                        </td>
+                        <td style="color: var(--text-secondary);">N/A</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <script>
+            function filterTable() {
+                var input = document.getElementById("searchInput");
+                var filter = input.value.toUpperCase();
+                var table = document.getElementById("fundTable");
+                var tr = table.getElementsByTagName("tr");
+                
+                for (var i = 1; i < tr.length; i++) {
+                    var tdName = tr[i].getElementsByTagName("td")[1];
+                    var tdCode = tr[i].getElementsByTagName("td")[2];
+                    if (tdName || tdCode) {
+                        var txtValueName = tdName.textContent || tdName.innerText;
+                        var txtValueCode = tdCode.textContent || tdCode.innerText;
+                        if (txtValueName.toUpperCase().indexOf(filter) > -1 || txtValueCode.toUpperCase().indexOf(filter) > -1) {
+                            tr[i].style.display = "";
+                        } else {
+                            tr[i].style.display = "none";
+                        }
+                    }
+                }
+            }
+        </script>
+
+        <div class="analysis-section">
+            <h2>🏆 台灣加權指數對比與綜合評析</h2>
+            <p><strong>1. 主動型台股基金的中長線爆發力：</strong><br>
+            在本次統計中，加權指數的三年報酬率為 <strong>160.50%</strong>。然而，有高達 <strong>96.48%</strong> 的台股主動型基金在三年的長線週期中成功擊敗了大盤。綜合排行領先的基金（如聯博大利、統一龍馬、元大經貿）在三年期普遍取得了 <strong>230% - 350%</strong> 的報酬，這反映了在台股這個以半導體零組件為核心的市場中，主動選股的巨大價值。
+            </p>
+            <p><strong>2. 短期波動與回檔防禦：</strong><br>
+            近一週加權指數拉回 <strong>-2.00%</strong>，此時有 <strong>34.67%</strong> 的主動基金能夠逆勢表現或減少跌幅，顯示在市場震盪或個股多頭分化時，經理人能透過減碼或避開非核心股，為投資組合帶來一定的防禦功能。
+            </p>
+        </div>
+    </div>
+</body>
+</html>
