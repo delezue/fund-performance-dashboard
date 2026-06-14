@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>36 檔標的週績效與回檔對比報告 (2026/06/08 - 2026/06/12)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0b10;
+            --bg-secondary: #12131a;
+            --bg-tertiary: #1a1c26;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --accent: #6366f1;
+            --emerald: #10b981;
+            --rose: #f43f5e;
+            --border: #272a37;
+            --card-radius: 16px;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; }
+
+        header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            border: 1px solid var(--border);
+            border-radius: var(--card-radius);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #fff, var(--text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .meta-info {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            background: rgba(255,255,255,0.05);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .table-container {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--card-radius);
+            overflow-x: auto;
+            margin-bottom: 2rem;
+        }
+
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th {
+            background-color: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 1rem 1.25rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border);
+            user-select: none;
+            position: relative;
+        }
+        
+        th.sortable {
+            cursor: pointer;
+            transition: color 0.2s, background-color 0.2s;
+        }
+        th.sortable:hover {
+            color: var(--text-primary);
+            background-color: rgba(255,255,255,0.03);
+        }
+        
+        .sort-arrow {
+            display: inline-block;
+            margin-left: 0.3rem;
+            font-size: 0.75rem;
+            color: var(--accent);
+        }
+
+        td { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        tr.highlight { background-color: rgba(99, 102, 241, 0.08); }
+        tr.highlight td { border-top: 1px solid var(--accent); border-bottom: 1px solid var(--accent); }
+
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-etf { background-color: rgba(99, 102, 241, 0.15); color: #818cf8; }
+        .badge-fund { background-color: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        .badge-lever { background-color: rgba(239, 68, 68, 0.15); color: #f87171; }
+        .badge-index { background-color: rgba(16, 185, 129, 0.15); color: #34d399; }
+
+        .num-pos { color: var(--emerald); font-weight: 600; }
+        .num-neg { color: var(--rose); font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>36 檔標的週績效與回檔對比報告</h1>
+            <p style="color: var(--text-secondary);">本報告分析「週內績效」、「今年以來總績效」與「距離今年最高點的漲跌（回檔幅度）」，並標註今年最高點時間。共同基金數據已採用鉅亨網 (cnyes.com) 進行修正與更新。</p>
+            <div class="meta-info">
+                <div class="meta-item">📊 大盤週內績效 (06/08~06/12): <span class="num-pos">+1.53%</span></div>
+                <div class="meta-item">🔌 數據引擎: <span style="color: var(--accent); font-weight:600;">yfinance & cnyes.com API</span></div>
+                <div class="meta-item">💡 提示: 點擊表格的 <span style="color: var(--accent);">週內績效</span>、<span style="color: var(--accent);">今年以來總績效</span> 或 <span style="color: var(--accent);">距離今年最高點漲跌</span> 標頭可切換排序！</div>
+            </div>
+        </header>
+
+        <div class="table-container">
+            <table id="performance-table">
+                <thead>
+                    <tr>
+                        <th>排名</th>
+                        <th>標的代碼</th>
+                        <th>標的名稱</th>
+                        <th>類型</th>
+                        <th class="sortable" id="th-week-perf">週內績效 (06/08~06/12) <span class="sort-arrow">▼</span></th>
+                        <th class="sortable" id="th-ytd-ret">今年以來總績效 <span class="sort-arrow"></span></th>
+                        <th class="sortable" id="th-ytd-high">距離今年最高點漲跌 <span class="sort-arrow"></span></th>
+                        <th>數據說明與最高點時間</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr >
+                            <td>1</td>
+                            <td><code>00735.TW</code></td>
+                            <td><strong>國泰臺韓科技</strong></td>
+                            <td><span class="badge badge-etf">被動型 ETF</span></td>
+                            <td class="num-pos">+4.92%</td>
+                            <td class="num-pos">+104.68%</td>
+                            <td class="num-neg">-9.18%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">最高點時間為 2026/06/03</td>
+                        </tr>
+                    <tr >
+                            <td>2</td>
+                            <td><code>A36004</code></td>
+                            <td><strong>安聯台灣科技基金</strong></td>
+                            <td><span class="badge badge-fund">共同基金</span></td>
+                            <td class="num-pos">+4.57%</td>
+                            <td class="num-pos">+101.7%</td>
+                            <td class="num-neg">-2.98%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">台股科技型共同基金霸主，淨值獲取自 cnyes (最高點時間為 2026/06/02)</td>
+                        </tr>
+                    <tr >
+                            <td>3</td>
+                            <td><code>00927.TW</code></td>
+                            <td><strong>群益半導體收益</strong></td>
+                            <td><span class="badge badge-etf">被動型 ETF</span></td>
+                            <td class="num-pos">+4.31%</td>
+                            <td class="num-pos">+85.63%</td>
+                            <td class="num-neg">-8.27%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">最高點時間為 2026/06/01</td>
+                        </tr>
+                    <tr >
+                            <td>4</td>
+                            <td><code>00685L.TW</code></td>
+                            <td><strong>群益臺灣加權正2</strong></td>
+                            <td><span class="badge badge-lever">槓桿型 ETF</span></td>
+                            <td class="num-pos">+4.03%</td>
+                            <td class="num-pos">+107.63%</td>
+                            <td class="num-neg">-11.91%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">最高點時間為 2026/06/03</td>
+                        </tr>
+                    <tr >
+                            <td>5</td>
+                            <td><code>A1rqsDL</code></td>
+                            <td><strong>路博邁台灣5G股票基金T月配級別(新臺幣)</strong></td>
+                            <td><span class="badge badge-fund">共同基金</span></td>
+                            <td class="num-pos">+3.89%</td>
+                            <td class="num-pos">+94.72%</td>
+                            <td class="num-neg">-5.42%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">5G主題共同基金，週內反彈強勁，淨值獲取自 cnyes (最高點時間為 2026/05/26)</td>
+                        </tr>
+                    <tr >
+                            <td>6</td>
+                            <td><code>00892.TW</code></td>
+                            <td><strong>富邦台灣半導體</strong></td>
+                            <td><span class="badge badge-etf">被動型 ETF</span></td>
+                            <td class="num-pos">+3.51%</td>
+                            <td class="num-pos">+95.4%</td>
+                            <td class="num-neg">-5.93%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">最高點時間為 2026/05/28</td>
+                        </tr>
+                    <tr >
+                            <td>7</td>
+                            <td><code>00891.TW</code></td>
+                            <td><strong>中信關鍵半導體</strong></td>
+                            <td><span class="badge badge-etf">被動型 ETF</span></td>
+                            <td class="num-pos">+3.44%</td>
+                            <td class="num-pos">+83.39%</td>
+                            <td class="num-neg">-6.08%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">最高點時間為 2026/06/03</td>
+                        </tr>
+                    <tr >
+                            <td>8</td>
+                            <td><code>00988A.TW</code></td>
+                            <td><strong>主動統一全球創新</strong></td>
+                            <td><span class="badge badge-etf">主動型 ETF</span></td>
+                            <td class="num-pos">+3.11%</td>
+                            <td class="num-pos">+106.32%</td>
+                            <td class="num-neg">-9.88%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">最高點時間為 2026/05/27</td>
+                        </tr>
+                    <tr class="highlight">
+                            <td>9</td>
+                            <td><code>00631L.TW</code></td>
+                            <td><strong>元大台灣50正2</strong></td>
+                            <td><span class="badge badge-lever">槓桿型 ETF</span></td>
+                            <td class="num-pos">+3.05%</td>
+                            <td class="num-pos">+104.2%</td>
+                            <td class="num-neg">-11.58%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">最高點時間為 2026/06/03</td>
+                        </tr>
+                    <tr >
+                            <td>10</td>
+                            <td><code>A23065</code></td>
+                            <td><strong>復華全球物聯網科技基金-新臺幣</strong></td>
+                            <td><span class="badge badge-fund">全球共同基金</span></td>
+                            <td class="num-pos">+2.85%</td>
+                            <td class="num-pos">+109.29%</td>
+                            <td class="num-neg">-7.08%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">全球物聯網主題，淨值獲取自 cnyes (最高點時間為 2026/06/02)</td>
+                        </tr>
+                    <tr >
+                            <td>11</td>
+                            <td><code>A36001</code></td>
+                            <td><strong>安聯台灣大壩基金-A類型-新臺幣</strong></td>
+                            <td><span class="badge badge-fund">共同基金</span></td>
+                            <td class="num-pos">+2.78%</td>
+                            <td class="num-pos">+93.96%</td>
+                            <td class="num-neg">-7.56%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">旗艦平衡配置型，淨值獲取自 cnyes (最高點時間為 2026/05/26)</td>
+                        </tr>
+                    <tr >
+                            <td>12</td>
+                            <td><code>A23066</code></td>
+                            <td><strong>復華全球物聯網科技基金-美元</strong></td>
+                            <td><span class="badge badge-fund">全球共同基金</span></td>
+                            <td class="num-pos">+2.68%</td>
+                            <td class="num-pos">+107.98%</td>
+                            <td class="num-neg">-7.64%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">全球物聯網主題 (美元計價)，淨值獲取自 cnyes (最高點時間為 2026/06/02)</td>
+                        </tr>
+                    <tr >
+                            <td>13</td>
+                            <td><code>00904.TW</code></td>
+                            <td><strong>新光臺灣半導體30</strong></td>
+                            <td><span class="badge badge-etf">被動型 ETF</span></td>
+                            <td class="num-pos">+2.56%</td>
+                            <td class="num-pos">+78.18%</td>
+                            <td class="num-neg">-6.9%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">最高點時間為 2026/06/03</td>
+                        </tr>
+                    <tr >
+                            <td>14</td>
+                            <td><code>00981A.TW</code></td>
+                            <td><strong>主動統一台股增長</strong></td>
+                            <td><span class="badge badge-etf">主動型 ETF</span></td>
+                            <td class="num-pos">+2.38%</td>
+                            <td class="num-pos">+86.01%</td>
+                            <td class="num-neg">-6.51%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">最高點時間為 2026/05/27</td>
+                        </tr>
+                    <tr >
+                            <td>15</td>
+                            <td><code>00935.TW</code></td>
+                            <td><strong>野村臺灣創新科技50</strong></td>
+                            <td><span class="badge badge-etf">被動型 ETF</span></td>
+                            <td class="num-pos">+2.35%</td>
+                            <td class="num-pos">+97.36%</td>
+                            <td class="num-neg">-7.18%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">最高點時間為 2026/06/03</td>
+                        </tr>
+                    <tr >
+                            <td>16</td>
+                            <td><code>00991A.TW</code></td>
+                            <td><strong>主動復華未來50</strong></td>
+                            <td><span class="badge badge-etf">主動型 ETF</span></td>
+                            <td class="num-pos">+1.93%</td>
+                            <td class="num-pos">+82.82%</td>
+                            <td class="num-neg">-6.02%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">最高點時間為 2026/06/01</td>
+                        </tr>
+                    <tr >
+                            <td>17</td>
+                            <td><code>00990A.TW</code></td>
+                            <td><strong>主動元大AI新經濟</strong></td>
+                            <td><span class="badge badge-etf">主動型 ETF</span></td>
+                            <td class="num-pos">+1.85%</td>
+                            <td class="num-pos">+89.66%</td>
+                            <td class="num-neg">-8.9%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">最高點時間為 2026/06/03</td>
+                        </tr>
+                    <tr class="highlight">
+                            <td>18</td>
+                            <td><code>A23015</code></td>
+                            <td><strong>復華全方位基金A類型</strong></td>
+                            <td><span class="badge badge-fund">共同基金</span></td>
+                            <td class="num-pos">+1.81%</td>
+                            <td class="num-pos">+85.12%</td>
+                            <td class="num-neg">-6.52%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">復華主力配置基金，淨值獲取自 cnyes (最高點時間為 2026/05/26)</td>
+                        </tr>
+                    <tr >
+                            <td>19</td>
+                            <td><code>00992A.TW</code></td>
+                            <td><strong>主動群益科技創新</strong></td>
+                            <td><span class="badge badge-etf">主動型 ETF</span></td>
+                            <td class="num-pos">+1.6%</td>
+                            <td class="num-pos">+71.32%</td>
+                            <td class="num-neg">-8.29%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">最高點時間為 2026/05/27</td>
+                        </tr>
+                    <tr >
+                            <td>20</td>
+                            <td><code>^TWII</code></td>
+                            <td><strong>加權指數</strong></td>
+                            <td><span class="badge badge-index">大盤指數</span></td>
+                            <td class="num-pos">+1.53%</td>
+                            <td class="num-pos">+50.49%</td>
+                            <td class="num-neg">-5.12%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">最高點時間為 2026/06/03</td>
+                        </tr>
+                    <tr >
+                            <td>21</td>
+                            <td><code>A42010</code></td>
+                            <td><strong>施羅德台灣樂活中小基金</strong></td>
+                            <td><span class="badge badge-fund">共同基金</span></td>
+                            <td class="num-pos">+1.37%</td>
+                            <td class="num-pos">+135.63%</td>
+                            <td class="num-neg">-3.51%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">中小成長股，具備強大防禦屬性，淨值獲取自 cnyes (最高點時間為 2026/06/02)</td>
+                        </tr>
+                    <tr >
+                            <td>22</td>
+                            <td><code>A32007</code></td>
+                            <td><strong>野村鴻運基金</strong></td>
+                            <td><span class="badge badge-fund">共同基金</span></td>
+                            <td class="num-pos">+1.34%</td>
+                            <td class="num-pos">+100.68%</td>
+                            <td class="num-neg">-5.91%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">野村老牌價值股代表，淨值獲取自 cnyes (最高點時間為 2026/05/25)</td>
+                        </tr>
+                    <tr >
+                            <td>23</td>
+                            <td><code>0052.TW</code></td>
+                            <td><strong>富邦科技</strong></td>
+                            <td><span class="badge badge-etf">被動型 ETF</span></td>
+                            <td class="num-pos">+1.27%</td>
+                            <td class="num-pos">+57.54%</td>
+                            <td class="num-neg">-6.51%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">最高點時間為 2026/06/03</td>
+                        </tr>
+                    <tr >
+                            <td>24</td>
+                            <td><code>00881.TW</code></td>
+                            <td><strong>國泰台灣科技龍頭</strong></td>
+                            <td><span class="badge badge-etf">被動型 ETF</span></td>
+                            <td class="num-pos">+1.15%</td>
+                            <td class="num-pos">+71.34%</td>
+                            <td class="num-neg">-6.19%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">最高點時間為 2026/06/03</td>
+                        </tr>
+                    <tr >
+                            <td>25</td>
+                            <td><code>A32008</code></td>
+                            <td><strong>野村中小基金-累積類型</strong></td>
+                            <td><span class="badge badge-fund">共同基金</span></td>
+                            <td class="num-pos">+1.15%</td>
+                            <td class="num-pos">+100.75%</td>
+                            <td class="num-neg">-6.48%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">中小龍頭共同基金，抗跌力道強，淨值獲取自 cnyes (最高點時間為 2026/05/25)</td>
+                        </tr>
+                    <tr >
+                            <td>26</td>
+                            <td><code>A09012</code></td>
+                            <td><strong>統一奔騰基金</strong></td>
+                            <td><span class="badge badge-fund">共同基金</span></td>
+                            <td class="num-pos">+1.14%</td>
+                            <td class="num-pos">+82.72%</td>
+                            <td class="num-neg">-5.82%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">統一科技旗艦基金，控盤能力優異，淨值獲取自 cnyes (最高點時間為 2026/05/26)</td>
+                        </tr>
+                    <tr >
+                            <td>27</td>
+                            <td><code>0050.TW</code></td>
+                            <td><strong>元大台灣50</strong></td>
+                            <td><span class="badge badge-etf">被動型 ETF</span></td>
+                            <td class="num-pos">+0.99%</td>
+                            <td class="num-pos">+54.43%</td>
+                            <td class="num-neg">-5.47%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">最高點時間為 2026/06/03</td>
+                        </tr>
+                    <tr >
+                            <td>28</td>
+                            <td><code>A32004</code></td>
+                            <td><strong>野村成長基金</strong></td>
+                            <td><span class="badge badge-fund">共同基金</span></td>
+                            <td class="num-pos">+0.79%</td>
+                            <td class="num-pos">+97.79%</td>
+                            <td class="num-neg">-6.59%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">野村主力成長型共同基金，淨值獲取自 cnyes (最高點時間為 2026/05/26)</td>
+                        </tr>
+                    <tr >
+                            <td>29</td>
+                            <td><code>A32002</code></td>
+                            <td><strong>野村台灣運籌基金</strong></td>
+                            <td><span class="badge badge-fund">共同基金</span></td>
+                            <td class="num-pos">+0.48%</td>
+                            <td class="num-pos">+101.77%</td>
+                            <td class="num-neg">-6.55%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">野村核心大型股代表，淨值獲取自 cnyes (最高點時間為 2026/05/26)</td>
+                        </tr>
+                    <tr >
+                            <td>30</td>
+                            <td><code>A05016</code></td>
+                            <td><strong>元大新主流基金</strong></td>
+                            <td><span class="badge badge-fund">共同基金</span></td>
+                            <td class="num-pos">+0.48%</td>
+                            <td class="num-pos">+113.69%</td>
+                            <td class="num-neg">-9.95%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">週內低檔反彈，淨值獲取自 cnyes (最高點時間為 2026/05/31)</td>
+                        </tr>
+                    <tr >
+                            <td>31</td>
+                            <td><code>A09064</code></td>
+                            <td><strong>統一台灣高息優選基金-月配型</strong></td>
+                            <td><span class="badge badge-fund">共同基金</span></td>
+                            <td class="num-pos">+0.41%</td>
+                            <td class="num-pos">+67.86%</td>
+                            <td class="num-neg">-6.03%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">統一高息精選，週內反彈穩健，淨值獲取自 cnyes (最高點時間為 2026/06/02)</td>
+                        </tr>
+                    <tr >
+                            <td>32</td>
+                            <td><code>A20012</code></td>
+                            <td><strong>富邦新台商基金</strong></td>
+                            <td><span class="badge badge-fund">共同基金</span></td>
+                            <td class="num-pos">+0.12%</td>
+                            <td class="num-pos">+88.67%</td>
+                            <td class="num-neg">-8.82%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">中概與台商主力共同基金，淨值獲取自 cnyes (最高點時間為 2026/05/26)</td>
+                        </tr>
+                    <tr >
+                            <td>33</td>
+                            <td><code>A09003</code></td>
+                            <td><strong>統一黑馬基金</strong></td>
+                            <td><span class="badge badge-fund">共同基金</span></td>
+                            <td class="num-pos">+0.07%</td>
+                            <td class="num-pos">+82.63%</td>
+                            <td class="num-neg">-8.32%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">統一高 beta 旗艦，短期回檔較深，淨值獲取自 cnyes (最高點時間為 2026/05/26)</td>
+                        </tr>
+                    <tr >
+                            <td>34</td>
+                            <td><code>A09037</code></td>
+                            <td><strong>統一全球新科技基金(新台幣)</strong></td>
+                            <td><span class="badge badge-fund">全球共同基金</span></td>
+                            <td class="num-neg">-0.14%</td>
+                            <td class="num-pos">+96.37%</td>
+                            <td class="num-neg">-7.66%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">全球科技股配置，週內跌幅見收斂，淨值獲取自 cnyes (最高點時間為 2026/06/02)</td>
+                        </tr>
+                    <tr >
+                            <td>35</td>
+                            <td><code>A09038</code></td>
+                            <td><strong>統一全球新科技基金(美元)</strong></td>
+                            <td><span class="badge badge-fund">全球共同基金</span></td>
+                            <td class="num-neg">-0.3%</td>
+                            <td class="num-pos">+95.05%</td>
+                            <td class="num-neg">-8.22%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">全球科技主題配置 (美元計價)，淨值獲取自 cnyes (最高點時間為 2026/06/02)</td>
+                        </tr>
+                    <tr >
+                            <td>36</td>
+                            <td><code>A32026</code></td>
+                            <td><strong>野村高科技基金-累積類型</strong></td>
+                            <td><span class="badge badge-fund">共同基金</span></td>
+                            <td class="num-neg">-2.23%</td>
+                            <td class="num-pos">+76.48%</td>
+                            <td class="num-neg">-11.82%</td>
+                            <td style="color: var(--text-secondary); font-size: 0.85rem;">高科技持股集中，短期回檔較深，淨值獲取自 cnyes (最高點時間為 2026/05/25)</td>
+                        </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const table = document.getElementById('performance-table');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            // Map columns to enable sorting
+            const sortConfigs = {
+                'th-week-perf': { index: 4, isNumeric: true, currentDirection: 'desc' },
+                'th-ytd-ret': { index: 5, isNumeric: true, currentDirection: 'none' },
+                'th-ytd-high': { index: 6, isNumeric: true, currentDirection: 'none' }
+            };
+            
+            Object.keys(sortConfigs).forEach(id => {
+                const header = document.getElementById(id);
+                header.addEventListener('click', () => {
+                    const config = sortConfigs[id];
+                    let direction = 'desc';
+                    
+                    if (config.currentDirection === 'desc') {
+                        direction = 'asc';
+                    }
+                    
+                    // Reset directions of all headers
+                    Object.keys(sortConfigs).forEach(hid => {
+                        sortConfigs[hid].currentDirection = 'none';
+                        const arrow = document.getElementById(hid).querySelector('.sort-arrow');
+                        if (arrow) arrow.textContent = '';
+                    });
+                    
+                    config.currentDirection = direction;
+                    const arrow = header.querySelector('.sort-arrow');
+                    if (arrow) {
+                        arrow.textContent = direction === 'desc' ? ' ▼' : ' ▲';
+                    }
+                    
+                    // Perform sort
+                    const sortedRows = rows.sort((rowA, rowB) => {
+                        const cellA = rowA.children[config.index].textContent.trim();
+                        const cellB = rowB.children[config.index].textContent.trim();
+                        
+                        let valA = parseFloat(cellA.replace(/[+%\s]/g, '')) || 0;
+                        let valB = parseFloat(cellB.replace(/[+%\s]/g, '')) || 0;
+                        
+                        return direction === 'asc' ? valA - valB : valB - valA;
+                    });
+                    
+                    // Clear tbody and re-insert rows
+                    tbody.innerHTML = '';
+                    sortedRows.forEach((row, i) => {
+                        // Re-assign ranks based on current sorted order
+                        row.children[0].textContent = i + 1;
+                        tbody.appendChild(row);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
